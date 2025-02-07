@@ -1,4 +1,4 @@
-# Multi-Stage Model Compression & Deployment
+# Multi-Stage Model Distillation-Compression & Deployment
 
 ## Overview
 This repository implements a **multi-stage model compression pipeline** for deep learning models. It includes:
