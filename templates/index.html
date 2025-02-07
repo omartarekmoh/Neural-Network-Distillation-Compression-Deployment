@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Comparison - CIFAR-10</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;  /* Centers horizontally */
+            align-items: center;  /* Centers vertically */
+            min-height: 100vh;  /* Ensures full height */
+            flex-direction: column; /* Keeps everything stacked */
+            width: 100%; /* Ensures full width */
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%; /* Ensures responsiveness */
+            max-width: 830px; /* Keeps it from being too wide */
+            text-align: center;
+            margin: 0 auto; /* Ensures proper centering */
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .result, .distribution {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%; /* Ensures full width inside .container */
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .result p, .distribution p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            margin-top: 10px;
+        }
+
+        .image-preview {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: none;
+            margin-bottom: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Compare Model Predictions and Inference Times on CIFAR-10</h1>
+        
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="imageInput" name="file" accept="image/*" required>
+            <button type="submit">Upload Image</button>
+        </form>
+
+        <img id="imagePreview" class="image-preview" alt="Uploaded Image">
+
+        <div class="result">
+            <h2>Predictions and Inference Times:</h2>
+            <p><strong>Fine-Tuned Model:</strong> <span id="finetunedPrediction"></span></p>
+            <p><strong>Distilled Model:</strong> <span id="distilledPrediction"></span></p>
+            <p><strong>TensorFlow Lite Model:</strong> <span id="tflitePrediction"></span></p>
+
+            <p><strong>Fine-Tuned Avg Inference Time:</strong> <span id="finetunedAvgTime"></span> seconds</p>
+            <p><strong>Distilled Avg Inference Time:</strong> <span id="distilledAvgTime"></span> seconds</p>
+            <p><strong>TensorFlow Lite Avg Inference Time:</strong> <span id="tfliteAvgTime"></span> seconds</p>
+        </div>
+
+        <div class="distribution">
+            <h2>Class Distribution (Probability):</h2>
+            <canvas id="finetunedChart"></canvas>
+            <canvas id="distilledChart"></canvas>
+            <canvas id="tfliteChart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let finetunedChart, distilledChart, tfliteChart;
+
+        document.getElementById("uploadForm").onsubmit = async function(event) {
+            event.preventDefault();
+            let formData = new FormData();
+            formData.append("file", document.getElementById("imageInput").files[0]);
+
+            const response = await fetch("/predict", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            // Display the uploaded image
+            const imagePreview = document.getElementById("imagePreview");
+            imagePreview.src = URL.createObjectURL(document.getElementById("imageInput").files[0]);
+            imagePreview.style.display = "block";
+
+            // Display predictions
+            document.getElementById("finetunedPrediction").innerText = data.prediction_finetuned;
+            document.getElementById("distilledPrediction").innerText = data.prediction_distilled;
+            document.getElementById("tflitePrediction").innerText = data.prediction_tflite;
+
+            document.getElementById("finetunedAvgTime").innerText = data.finetuned_avg_time.toFixed(4);
+            document.getElementById("distilledAvgTime").innerText = data.distilled_avg_time.toFixed(4);
+            document.getElementById("tfliteAvgTime").innerText = data.tflite_avg_time.toFixed(4);
+
+            // Class labels
+            const labels = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'];
+
+            // Destroy old charts if they exist
+            if (finetunedChart) finetunedChart.destroy();
+            if (distilledChart) distilledChart.destroy();
+            if (tfliteChart) tfliteChart.destroy();
+
+            // Fine-tuned model chart
+            finetunedChart = new Chart(document.getElementById("finetunedChart"), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Fine-Tuned Model',
+                        data: data.finetuned_percentages,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true, max: 1 } } }
+            });
+
+            // Distilled model chart
+            distilledChart = new Chart(document.getElementById("distilledChart"), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Distilled Model',
+                        data: data.distilled_percentages,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true, max: 1 } } }
+            });
+            console.log(data.tflite_percentages)
+            // TensorFlow Lite model chart
+            tfliteChart = new Chart(document.getElementById("tfliteChart"), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'TensorFlow Lite Model',
+                        data: data.tflite_percentages,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true, max: 1 } } }
+            });
+        };
+    </script>
+</body>
+</html>
