@@ -1,6 +1,6 @@
-# 🧠 Multi-Stage Model Compression & Deployment
+# Multi-Stage Model Compression & Deployment
 
-## 🚀 Overview
+## Overview
 This repository implements a **multi-stage model compression pipeline** for deep learning models. It includes:
 1. **Big Model (Teacher)** – A high-performance, large-scale deep learning model.
 2. **Distilled Model (Student)** – A smaller, optimized version of the teacher model.
@@ -10,10 +10,10 @@ This pipeline demonstrates **knowledge distillation**, **model compression**, an
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
-📦 Multi-Stage Model Compression
+Multi-Stage Model Compression
 ├── models/  # Pre-trained and distilled models
 │   ├── best_resnet50_model.pth  # Teacher Model (ResNet50)
 │   ├── best_student.pth  # Distilled Model (ResNet18)
@@ -32,38 +32,38 @@ This pipeline demonstrates **knowledge distillation**, **model compression**, an
 
 ---
 
-## 🎯 Features
-- ✅ **Knowledge Distillation** – Compresses a large model into a lightweight student model.
-- ✅ **TFLite Conversion** – Deploys the model efficiently on mobile and edge devices.
-- ✅ **Flask API** – A REST API for serving predictions from all models.
-- ✅ **Web Interface** – An interactive UI for testing models.
-- ✅ **Class Probability Visualization** – Displays softmax class probabilities using Chart.js.
+## Features
+- **Knowledge Distillation** – Compresses a large model into a lightweight student model.
+- **TFLite Conversion** – Deploys the model efficiently on mobile and edge devices.
+- **Flask API** – A REST API for serving predictions from all models.
+- **Web Interface** – An interactive UI for testing models.
+- **Class Probability Visualization** – Displays softmax class probabilities using Chart.js.
 
 ---
 
-## 🛠️ Setup & Installation
+## Setup & Installation
 
-### **1️⃣ Clone the Repository**
+### **Clone the Repository**
 ```bash
 git clone https://github.com/your-username/your-repo-name.git
 cd your-repo-name
 ```
 
-### **2️⃣ Create a Virtual Environment**
+### **Create a Virtual Environment**
 ```bash
 python -m venv venv
 source venv/bin/activate   # On macOS/Linux
 venv\Scriptsctivate      # On Windows
 ```
 
-### **3️⃣ Install Dependencies**
+### **Install Dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
 ---
 
-## 🔥 Model Training & Knowledge Distillation
+## Model Training & Knowledge Distillation
 
 The teacher model (ResNet50) is trained on CIFAR-10, and a distilled student model (ResNet18) is obtained using knowledge distillation.
 
@@ -84,7 +84,7 @@ python convert_tflite.py --model best_student.pth --output best_resnet18_model_l
 
 ---
 
-## 🌐 Running the Flask API
+## Running the Flask API
 
 Start the backend server to serve model predictions via an API.
 
@@ -99,11 +99,11 @@ The API will be available at: [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
 ---
 
-## 🖥️ Web UI for Model Testing
+## Web UI for Model Testing
 
 A web-based UI allows users to upload images and view predictions and class distributions.
 
-### **1️⃣ Start the Web Server**
+### **Start the Web Server**
 ```bash
 cd frontend
 python -m http.server 8080
@@ -147,31 +147,7 @@ Content-Type: multipart/form-data
 
 ---
 
-## 🏗️ Deployment Options
-
-### **1️⃣ Deploy with Docker**
-```bash
-docker build -t model-compression-api .
-docker run -p 5000:5000 model-compression-api
-```
-
-### **2️⃣ Deploy to Cloud (e.g., AWS, GCP, Heroku)**
-- AWS Lambda + API Gateway
-- Google Cloud Run
-- Heroku with Gunicorn
-
----
-
-## 🛠️ Technologies Used
-- **PyTorch** – Model Training & Knowledge Distillation
-- **TensorFlow Lite** – Model Conversion for Edge Deployment
-- **Flask** – API for Serving Predictions
-- **Chart.js** – Data Visualization
-- **HTML, CSS, JavaScript** – Web UI
-
----
-
-## 🤝 Contributing
+## Contributing
 Contributions are welcome! Follow these steps:
 
 1. Fork the repo
@@ -181,18 +157,13 @@ Contributions are welcome! Follow these steps:
 
 ---
 
-## ⚖️ License
+## License
 This project is licensed under the **MIT License**.
 
 ---
 
-## 📝 Acknowledgments
+## Acknowledgments
 - **PyTorch & TensorFlow** for model training and deployment tools.
 - **Flask & Chart.js** for API and UI components.
 
 ---
-
-## 🚀 Contact & Links
-📩 **Email:** your.email@example.com  
-🔗 **GitHub Repo:** Your Repo Link  
-🌍 **Live Demo (if deployed):** Live Link
