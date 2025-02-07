@@ -53,7 +53,7 @@ cd your-repo-name
 ```bash
 python -m venv venv
 source venv/bin/activate   # On macOS/Linux
-venv\Scriptsctivate      # On Windows
+venv\Scripts\Activate      # On Windows
 ```
 
 ### **Install Dependencies**
